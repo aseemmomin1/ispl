@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="|${device.name} | ISPL|">Device</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100 text-slate-800">
+<nav th:replace="~{fragments/header :: header}"></nav>
+<main class="max-w-6xl mx-auto p-4 py-16">
+    <div class="md:grid md:grid-cols-2 gap-10 items-start">
+        <div class="bg-white rounded-2xl p-8 shadow-lg">
+            <span class="inline-flex text-xs uppercase tracking-[0.25em] text-cyan-700" th:text="${device.category.name}">Mobile</span>
+            <h1 class="mt-4 text-4xl font-black" th:text="${device.name}">Galaxy S Series</h1>
+            <p class="mt-4 text-slate-600" th:text="${device.fullDescription}">Detailed description</p>
+            <div class="mt-6 text-2xl font-bold text-slate-900" th:text="|From ₹${device.priceFrom}|">From ₹2499</div>
+        </div>
+        <div class="bg-white rounded-2xl p-8 shadow-lg">
+            <h2 class="text-2xl font-bold">Available repair services</h2>
+            <div th:each="service : ${services}" class="mt-6 flex items-center justify-between border-b pb-4">
+                <div>
+                    <h3 class="text-lg font-semibold" th:text="${service.name}">Screen Replacement</h3>
+                    <p class="text-sm text-slate-500" th:text="|${service.duration} • ${service.description}|">2-3 hours • description</p>
+                </div>
+                <div class="text-right">
+                    <div class="font-bold text-slate-900" th:text="|₹${service.price}|">₹2499</div>
+                    <button type="button" class="mt-2 bg-cyan-500 text-slate-900 font-semibold px-4 py-2 rounded-lg open-checkout" th:data-service-id="${service.id}">Book now</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<div id="checkoutDrawer" class="fixed inset-y-0 right-0 w-full max-w-md bg-white shadow-2xl transform translate-x-full transition-transform p-6">
+    <div class="flex justify-between items-center">
+        <h3 class="text-2xl font-bold">Checkout</h3>
+        <button id="closeCheckout" class="text-2xl">×</button>
+    </div>
+    <div class="mt-8 p-4 bg-slate-100 rounded-xl">
+        <p class="text-sm text-slate-500">Estimated total</p>
+        <div id="totalAmount" class="mt-2 text-3xl font-black">₹0</div>
+    </div>
+    <button id="payNowBtn" class="mt-8 w-full bg-slate-900 text-white py-3 rounded-lg font-bold">Pay with Razorpay</button>
+</div>
+
+<script>
+    const drawer = document.getElementById('checkoutDrawer');
+    const closeBtn = document.getElementById('closeCheckout');
+    const payNowBtn = document.getElementById('payNowBtn');
+    const amountBox = document.getElementById('totalAmount');
+    const openButtons = document.querySelectorAll('.open-checkout');
+    openButtons.forEach((button) => {
+        button.addEventListener('click', () => {
+            const amount = Number(button.parentElement.querySelector('.font-bold').textContent.replace(/[^0-9]/g, ''));
+            amountBox.textContent = `₹${amount}`;
+            drawer.classList.remove('translate-x-full');
+        });
+    });
+    closeBtn.addEventListener('click', () => drawer.classList.add('translate-x-full'));
+    payNowBtn.addEventListener('click', () => {
+        alert('Razorpay payment widget hook ready. Connect your live key and redirect the callback endpoint to complete checkout.');
+    });
+</script>
+</body>
+</html>

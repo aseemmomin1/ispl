@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard | ISPL</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100 text-slate-800">
+<div class="min-h-screen flex">
+    <aside class="w-72 bg-slate-900 text-white p-6">
+        <div class="text-2xl font-black">ISPL Admin</div>
+        <nav class="mt-10 space-y-3">
+            <a th:href="@{/admin}" class="block bg-slate-700 rounded-lg px-4 py-3 font-semibold">Dashboard</a>
+            <a th:href="@{/admin/devices}" class="block hover:bg-slate-800 rounded-lg px-4 py-3">Devices</a>
+            <a th:href="@{/admin/services}" class="block hover:bg-slate-800 rounded-lg px-4 py-3">Services</a>
+            <a th:href="@{/admin/careers}" class="block hover:bg-slate-800 rounded-lg px-4 py-3">Careers</a>
+            <a th:href="@{/admin/about}" class="block hover:bg-slate-800 rounded-lg px-4 py-3">About</a>
+            <form th:action="@{/logout}" method="post" class="pt-8">
+                <button type="submit" class="w-full border border-white/20 rounded-lg px-4 py-3 text-left">Logout</button>
+            </form>
+        </nav>
+    </aside>
+    <main class="flex-1 p-8">
+        <div class="grid md:grid-cols-4 gap-6">
+            <div class="bg-white rounded-2xl p-6 shadow-sm"><p class="text-sm text-slate-500">Devices</p><h3 class="mt-2 text-3xl font-black" th:text="${deviceCount}">0</h3></div>
+            <div class="bg-white rounded-2xl p-6 shadow-sm"><p class="text-sm text-slate-500">Careers</p><h3 class="mt-2 text-3xl font-black" th:text="${careerCount}">0</h3></div>
+            <div class="bg-white rounded-2xl p-6 shadow-sm"><p class="text-sm text-slate-500">Orders</p><h3 class="mt-2 text-3xl font-black" th:text="${orderCount}">0</h3></div>
+            <div class="bg-white rounded-2xl p-6 shadow-sm"><p class="text-sm text-slate-500">Users</p><h3 class="mt-2 text-3xl font-black" th:text="${userCount}">0</h3></div>
+        </div>
+        <div class="mt-10 bg-white rounded-2xl p-6 shadow-sm">
+            <h2 class="text-2xl font-bold">Categories</h2>
+            <ul class="mt-4 space-y-3">
+                <li th:each="category : ${categories}" class="flex justify-between border-b pb-3">
+                    <span th:text="${category.name}">Mobile</span>
+                    <span class="text-slate-500" th:text="${category.slug}">mobile</span>
+                </li>
+            </ul>
+        </div>
+    </main>
+</div>
+</body>
+</html>

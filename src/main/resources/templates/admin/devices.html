@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Manage Devices | ISPL</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100 text-slate-800">
+<div class="min-h-screen flex">
+    <aside class="w-72 bg-slate-900 text-white p-6">
+        <div class="text-2xl font-black">ISPL Admin</div>
+        <nav class="mt-10 space-y-3">
+            <a th:href="@{/admin}" class="block hover:bg-slate-800 rounded-lg px-4 py-3">Dashboard</a>
+            <a th:href="@{/admin/devices}" class="block bg-slate-700 rounded-lg px-4 py-3 font-semibold">Devices</a>
+            <a th:href="@{/admin/services}" class="block hover:bg-slate-800 rounded-lg px-4 py-3">Services</a>
+            <a th:href="@{/admin/careers}" class="block hover:bg-slate-800 rounded-lg px-4 py-3">Careers</a>
+            <a th:href="@{/admin/about}" class="block hover:bg-slate-800 rounded-lg px-4 py-3">About</a>
+        </nav>
+    </aside>
+    <main class="flex-1 p-8">
+        <h1 class="text-3xl font-black">Devices</h1>
+        <form th:action="@{/admin/devices/save}" method="post" class="mt-8 bg-white rounded-2xl p-6 shadow-sm space-y-4">
+            <div class="grid md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium mb-2">Category</label>
+                    <select name="categoryId" class="w-full border rounded-lg p-3">
+                        <option th:each="category : ${categories}" th:value="${category.id}" th:text="${category.name}">Mobile</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2">Device name</label>
+                    <input type="text" name="name" class="w-full border rounded-lg p-3" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2">Slug</label>
+                    <input type="text" name="slug" class="w-full border rounded-lg p-3" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2">Image URL</label>
+                    <input type="text" name="imageUrl" class="w-full border rounded-lg p-3">
+                </div>
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-2">Short description</label>
+                <textarea name="shortDescription" rows="3" class="w-full border rounded-lg p-3"></textarea>
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-2">Full description</label>
+                <textarea name="fullDescription" rows="4" class="w-full border rounded-lg p-3"></textarea>
+            </div>
+            <div class="flex items-center gap-3">
+                <input type="checkbox" name="active" checked>
+                <span>Active</span>
+            </div>
+            <button type="submit" class="bg-cyan-500 text-slate-900 font-bold px-5 py-3 rounded-lg">Save device</button>
+        </form>
+
+        <div class="mt-10 bg-white rounded-2xl shadow-sm p-6">
+            <h2 class="text-2xl font-bold">Existing devices</h2>
+            <div class="mt-6 space-y-4">
+                <div th:each="device : ${devices}" class="flex items-center justify-between border-b pb-4">
+                    <div>
+                        <h3 class="font-bold" th:text="${device.name}">Device name</h3>
+                        <p class="text-sm text-slate-500" th:text="${device.category.name}">Category</p>
+                    </div>
+                    <form th:action="@{/admin/devices/{id}/delete(id=${device.id})}" method="post">
+                        <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded-lg">Soft delete</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+</body>
+</html>
