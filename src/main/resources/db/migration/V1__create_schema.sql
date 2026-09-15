@@ -5,8 +5,8 @@ CREATE TABLE IF NOT EXISTS device_categories (
     description VARCHAR(500),
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
-    UNIQUE KEY uk_device_categories_slug (slug)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    UNIQUE (slug)
+);
 
 CREATE TABLE IF NOT EXISTS devices (
     id BIGINT NOT NULL AUTO_INCREMENT,
@@ -21,10 +21,10 @@ CREATE TABLE IF NOT EXISTS devices (
     deleted BOOLEAN NOT NULL DEFAULT FALSE,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
-    UNIQUE KEY uk_devices_slug (slug),
-    KEY idx_devices_category (category_id),
+    UNIQUE (slug),
+    INDEX idx_devices_category (category_id),
     CONSTRAINT fk_devices_category FOREIGN KEY (category_id) REFERENCES device_categories(id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+);
 
 CREATE TABLE IF NOT EXISTS services (
     id BIGINT NOT NULL AUTO_INCREMENT,
@@ -37,9 +37,9 @@ CREATE TABLE IF NOT EXISTS services (
     deleted BOOLEAN NOT NULL DEFAULT FALSE,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
-    KEY idx_services_device (device_id),
+    INDEX idx_services_device (device_id),
     CONSTRAINT fk_services_device FOREIGN KEY (device_id) REFERENCES devices(id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+);
 
 CREATE TABLE IF NOT EXISTS careers (
     id BIGINT NOT NULL AUTO_INCREMENT,
@@ -53,7 +53,7 @@ CREATE TABLE IF NOT EXISTS careers (
     deleted BOOLEAN NOT NULL DEFAULT FALSE,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+);
 
 CREATE TABLE IF NOT EXISTS about_content (
     id BIGINT NOT NULL AUTO_INCREMENT,
@@ -64,8 +64,8 @@ CREATE TABLE IF NOT EXISTS about_content (
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
-    UNIQUE KEY uk_about_section (section_key)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    UNIQUE (section_key)
+);
 
 CREATE TABLE IF NOT EXISTS users (
     id BIGINT NOT NULL AUTO_INCREMENT,
@@ -77,9 +77,9 @@ CREATE TABLE IF NOT EXISTS users (
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
-    UNIQUE KEY uk_users_username (username),
-    UNIQUE KEY uk_users_email (email)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    UNIQUE (username),
+    UNIQUE (email)
+);
 
 CREATE TABLE IF NOT EXISTS orders (
     id BIGINT NOT NULL AUTO_INCREMENT,
@@ -95,12 +95,12 @@ CREATE TABLE IF NOT EXISTS orders (
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
-    KEY idx_orders_user (user_id),
-    KEY idx_orders_status (status),
+    INDEX idx_orders_user (user_id),
+    INDEX idx_orders_status (status),
     CONSTRAINT fk_orders_user FOREIGN KEY (user_id) REFERENCES users(id),
     CONSTRAINT fk_orders_device FOREIGN KEY (device_id) REFERENCES devices(id),
     CONSTRAINT fk_orders_service FOREIGN KEY (service_id) REFERENCES services(id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+);
 
 CREATE TABLE IF NOT EXISTS order_items (
     id BIGINT NOT NULL AUTO_INCREMENT,
@@ -110,8 +110,8 @@ CREATE TABLE IF NOT EXISTS order_items (
     unit_price DECIMAL(10,2) NOT NULL,
     total_price DECIMAL(10,2) NOT NULL,
     PRIMARY KEY (id),
-    KEY idx_order_items_order (order_id),
-    KEY idx_order_items_service (service_id),
+    INDEX idx_order_items_order (order_id),
+    INDEX idx_order_items_service (service_id),
     CONSTRAINT fk_order_items_order FOREIGN KEY (order_id) REFERENCES orders(id),
     CONSTRAINT fk_order_items_service FOREIGN KEY (service_id) REFERENCES services(id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+);

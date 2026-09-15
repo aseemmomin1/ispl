@@ -24,7 +24,10 @@
                 </div>
                 <div class="text-right">
                     <div class="font-bold text-slate-900" th:text="|₹${service.price}|">₹2499</div>
-                    <button type="button" class="mt-2 bg-cyan-500 text-slate-900 font-semibold px-4 py-2 rounded-lg open-checkout" th:data-service-id="${service.id}">Book now</button>
+                    <button type="button"
+                            class="mt-2 bg-cyan-500 text-slate-900 font-semibold px-4 py-2 rounded-lg open-checkout"
+                            th:data-service-id="${service.id}"
+                            th:data-authenticated="${loggedIn}">Book now</button>
                 </div>
             </div>
         </div>
@@ -49,13 +52,22 @@
     const payNowBtn = document.getElementById('payNowBtn');
     const amountBox = document.getElementById('totalAmount');
     const openButtons = document.querySelectorAll('.open-checkout');
+
     openButtons.forEach((button) => {
         button.addEventListener('click', () => {
+            const isAuthenticated = button.dataset.authenticated === 'true';
+            if (!isAuthenticated) {
+                const currentPath = window.location.pathname;
+                window.location.href = '/login?redirect=' + encodeURIComponent(currentPath);
+                return;
+            }
+
             const amount = Number(button.parentElement.querySelector('.font-bold').textContent.replace(/[^0-9]/g, ''));
             amountBox.textContent = `₹${amount}`;
             drawer.classList.remove('translate-x-full');
         });
     });
+
     closeBtn.addEventListener('click', () => drawer.classList.add('translate-x-full'));
     payNowBtn.addEventListener('click', () => {
         alert('Razorpay payment widget hook ready. Connect your live key and redirect the callback endpoint to complete checkout.');

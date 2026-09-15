@@ -1,5 +1,8 @@
 package com.infyvaritaas.ispl.config;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -8,9 +11,11 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
@@ -29,18 +34,21 @@ public class SecurityConfig {
         http
             .csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(authorize -> authorize
-                .requestMatchers("/", "/about", "/careers", "/contact", "/login", "/css/**", "/js/**", "/images/**",
-                        "/api/v1/public/**", "/swagger-ui/**", "/v3/api-docs/**", "/actuator/health")
+                .requestMatchers("/", "/about", "/careers", "/contact", "/login", "/device", "/device/**",
+                        "/css/**", "/js/**", "/images/**", "/api/v1/public/**", "/api/v1/auth/**",
+                        "/swagger-ui/**", "/v3/api-docs/**", "/actuator/health")
                 .permitAll()
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
+                .requestMatchers("/api/v1/orders/**", "/api/v1/payments/**").authenticated()
                 .requestMatchers("/user/**").hasAnyRole("USER", "ADMIN")
                 .anyRequest().authenticated()
             )
             .addFilterBefore(rateLimitFilter, UsernamePasswordAuthenticationFilter.class)
             .formLogin(form -> form
                 .loginPage("/login")
-                .defaultSuccessUrl("/admin", true)
+                .successHandler(successHandler())
+                .failureUrl("/login?error=true")
                 .permitAll())
             .logout(logout -> logout
                 .logoutUrl("/logout")
@@ -50,6 +58,23 @@ public class SecurityConfig {
                 .permitAll());
 
         return http.build();
+    }
+
+    @Bean
+    public AuthenticationSuccessHandler successHandler() {
+        return (HttpServletRequest request, HttpServletResponse response, Authentication authentication) -> {
+            String redirect = request.getParameter("redirect");
+            String target = authentication.getAuthorities().stream()
+                    .anyMatch(authority -> authority.getAuthority().equals("ROLE_ADMIN"))
+                    ? "/admin"
+                    : "/";
+
+            if (redirect != null && !redirect.isBlank()) {
+                target = redirect;
+            }
+
+            response.sendRedirect(request.getContextPath() + target);
+        };
     }
 
     @Bean

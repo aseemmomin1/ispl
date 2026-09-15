@@ -13,6 +13,7 @@ import com.infyvaritaas.ispl.service.RazorpayService;
 import java.math.BigDecimal;
 import java.util.Map;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -44,11 +45,13 @@ public class OrderController {
     }
 
     @PostMapping("/orders/create")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ApiResponse<Map<String, Object>>> createOrder(@RequestParam Long deviceId,
             @RequestParam Long serviceId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String principalName = authentication.getName();
         var user = userRepository.findByUsername(principalName)
+                .or(() -> userRepository.findByEmail(principalName))
                 .orElseThrow(() -> new RuntimeException("User not found"));
         Device device = deviceRepository.findById(deviceId).orElseThrow();
         RepairService service = serviceRepository.findById(serviceId).orElseThrow();
@@ -56,7 +59,7 @@ public class OrderController {
 
         RazorpayService.PaymentOrderResult paymentOrder = razorpayService.createOrder(order.getTotalAmount(), "order-" + order.getId());
         order.setRazorpayOrderId(paymentOrder.orderId());
-        var savedOrder = orderService.updateStatus(paymentOrder.orderId(), "", "pending");
+        orderService.updateStatus(paymentOrder.orderId(), "", "pending");
 
         Map<String, Object> payload = Map.of(
                 "orderId", order.getId(),
@@ -69,6 +72,7 @@ public class OrderController {
     }
 
     @PostMapping("/payments/create-order")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ApiResponse<Map<String, Object>>> createPaymentOrder(@RequestBody Map<String, Object> payload) {
         BigDecimal amount = new BigDecimal(payload.getOrDefault("amount", "0").toString());
         String receipt = payload.getOrDefault("receipt", "repair-order").toString();
@@ -81,6 +85,7 @@ public class OrderController {
     }
 
     @PostMapping("/payments/confirm")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ApiResponse<Map<String, Object>>> confirmPayment(@RequestBody PaymentCallbackRequest callback) {
         Order order = orderService.updateStatus(callback.getRazorpayOrderId(), callback.getRazorpayPaymentId(), callback.getStatus());
         Map<String, Object> data = Map.of(

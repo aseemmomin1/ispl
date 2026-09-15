@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1")
 public class AuthController {
 
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AuthController.class);
+
     private final AuthenticationManager authenticationManager;
     private final AuthService authService;
 
@@ -29,11 +31,13 @@ public class AuthController {
 
     @PostMapping("/auth/register")
     public ResponseEntity<ApiResponse<Object>> register(@Valid @RequestBody RegisterRequest request) {
+        logger.info("Register request received: username='{}', email='{}'", request.getUsername(), request.getEmail());
         return ResponseEntity.ok(new ApiResponse<>("Registration successful", authService.register(request)));
     }
 
     @PostMapping("/auth/login")
     public ResponseEntity<ApiResponse<Object>> login(@Valid @RequestBody LoginRequest request) {
+        logger.info("Login attempt for username='{}'", request.getUsername());
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
         SecurityContextHolder.getContext().setAuthentication(authentication);

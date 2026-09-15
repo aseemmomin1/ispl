@@ -13,6 +13,7 @@ import com.infyvaritaas.ispl.repository.RepairServiceRepository;
 import com.infyvaritaas.ispl.repository.UserRepository;
 import java.math.BigDecimal;
 import java.util.List;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 @RequestMapping("/admin")
+@PreAuthorize("hasRole('ADMIN')")
 public class AdminController {
 
     private final DeviceCategoryRepository categoryRepository;
@@ -58,7 +60,7 @@ public class AdminController {
 
     @GetMapping("/devices")
     public String devices(Model model) {
-        model.addAttribute("devices", deviceRepository.findAll());
+        model.addAttribute("devices", deviceRepository.findByDeletedFalseOrderByNameAsc());
         model.addAttribute("categories", categoryRepository.findAll());
         return "admin/devices";
     }
@@ -70,6 +72,7 @@ public class AdminController {
             @RequestParam(required = false) String shortDescription,
             @RequestParam(required = false) String fullDescription,
             @RequestParam(required = false) String imageUrl,
+            @RequestParam(required = false) BigDecimal priceFrom,
             @RequestParam(defaultValue = "true") boolean active,
             @RequestParam(required = false) Long deviceId) {
 
@@ -82,7 +85,7 @@ public class AdminController {
         device.setFullDescription(fullDescription);
         device.setImageUrl(imageUrl);
         device.setActive(active);
-        device.setPriceFrom(BigDecimal.ZERO);
+        device.setPriceFrom(priceFrom != null ? priceFrom : BigDecimal.ZERO);
         deviceRepository.save(device);
         return "redirect:/admin/devices";
     }
@@ -104,7 +107,7 @@ public class AdminController {
 
     @GetMapping("/careers")
     public String careers(Model model) {
-        model.addAttribute("careers", careerRepository.findAll());
+        model.addAttribute("careers", careerRepository.findByDeletedFalseOrderByCreatedAtDesc());
         return "admin/careers";
     }
 
@@ -167,9 +170,9 @@ public class AdminController {
 
     @GetMapping("/services")
     public String services(Model model) {
-        List<Device> devices = deviceRepository.findAll();
+        List<Device> devices = deviceRepository.findByDeletedFalseOrderByNameAsc();
         model.addAttribute("devices", devices);
-        model.addAttribute("services", serviceRepository.findAll());
+        model.addAttribute("services", serviceRepository.findByDeletedFalseOrderByPriceAsc());
         return "admin/services";
     }
 

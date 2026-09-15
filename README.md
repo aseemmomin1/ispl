@@ -31,7 +31,7 @@ A server-side rendered Spring Boot monolith for device repair services, job list
 
 2. Copy the template file and configure your environment
    ```bash
-   cp application-template.properties src/main/resources/application.properties
+   cp application.properties src/main/resources/application.properties
    ```
    Update database and Razorpay values inside the file.
 
